@@ -113,7 +113,7 @@ int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
 	file = fopen(nameOfFile, "r");
 	char buffer[MAX_LINE] = { 0 };
 	char* P = buffer;
-	char c = '';
+	char c = ' ';
 	float F = 0.0;
 	n = 0; r = 0; i = 0;
 
@@ -130,16 +130,25 @@ int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
 
 		r = sscanf(P, " %f %n", &F, &n);
 		if (r != 1) {
-			sscanf(P, " %c %n", &F, &n);
-			switch (r)
+			sscanf(P, " %c %n", &c, &n);
+			switch (c)
 			{
+			case '+': 
+				Add(Poz);
+				break;
+			case '-':
+				Sub(Poz);
+				break;
+			case '*':
+				Mult(Poz);
+				break;
+			case '/':
+				Div(Poz);
+				break;
 			default:
 				break;
 			}
-			
-			
-			
-			
+		
 			break; 
 		}
 		P += n * sizeof(char);
@@ -161,6 +170,26 @@ int Add(Position P) {
 int Sub(Position P) {
 
 	P->Next->Next->f -= P->Next->f;
+	DelNextEl(P);
+	return PROGRAM_SUCCESS;
+
+}
+int Mult(Position P) {
+
+	P->Next->Next->f *= P->Next->f;
+	DelNextEl(P);
+	return PROGRAM_SUCCESS;
+
+}
+int Div(Position P) {
+
+	if (P->Next->f == 0)
+	{
+		printf("Division by zero is not allowed!!");
+		return PROGRAM_FAILED;
+	}
+
+	P->Next->Next->f /= P->Next->f;
 	DelNextEl(P);
 	return PROGRAM_SUCCESS;
 
