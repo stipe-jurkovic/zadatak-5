@@ -1,0 +1,3 @@
+﻿  zadatak 5.c
+C:\Users\student\Desktop\zadatak 5\zadatak 5.c(116,11): error C2137: empty character constant
+C:\Users\student\Desktop\zadatak 5\zadatak 5.c(133,14): warning C4477: 'sscanf' : format string '%c' requires an argument of type 'char *', but variadic argument 1 has type 'float *'
