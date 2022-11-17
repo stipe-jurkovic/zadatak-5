@@ -11,8 +11,6 @@
 #define MAX_LINE 100
 #define true 1
 
-
-
 typedef struct Cvor* Position;
 typedef struct Cvor {
 
@@ -21,27 +19,53 @@ typedef struct Cvor {
 
 } Cvor;
 
-
-Position PrevEl(Position P, float F);
 Position EndOfList(Position P);
-
+int ProgramDescription();
+int ProgramEndnote();
 int NewElAfter(Position P, float F);
 int NewElEnd(Position P, float F);
 int PrintEl(Position P);
 int PrintList(Position P);
 
-int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Pozn, int line);
+int ProcessFile(char nameOfFile[MAX_FILE_NAME], Position Pozn, int line);
 
 int Add(Position P);
 int Sub(Position P);
+int Div(Position P);
+int Mult(Position P);
 int DelNextEl(Position P);
 int DelAll(Position P);
 
 int main() {
+	Position head;
+	char imeDatoteke[MAX_FILE_NAME];
+	int s;
+	s = 0;
+	memset(imeDatoteke, "0", MAX_FILE_NAME);
 
-
-
-
+	ProgramDescription();
+	printf("\n Enter filename (in form example.txt): ");
+	s=scanf(" %s", &imeDatoteke);
+	
+	if (s == 0) { return PROGRAM_FAILED; }
+	head = malloc(sizeof(Cvor));
+	if (head == NULL) {
+		printf("Memory allocation fail");
+		return PROGRAM_FAILED;
+	}
+	
+	head->f = 0.0;
+	head->Next = NULL;
+	
+	ProcessFile(imeDatoteke, head, 1); 
+	
+	printf("\n\nResult: ");
+	PrintList(head);
+	printf("\n");
+	
+	DelAll(head);
+	ProgramEndnote();
+	return PROGRAM_SUCCESS;
 }
 
 Position EndOfList(Position P) {
@@ -51,15 +75,29 @@ Position EndOfList(Position P) {
 	}
 	return P;
 }
-Position PrevEl(Position P, float F) {
+int ProgramDescription() {
 
-	while (P->Next != NULL && P->Next->f != F)
-	{
-		P = P->Next;
-	}
-	return P;
+	printf(" #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n");
+	printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf(" \n");
+	printf(" This is a program for calculating postfix expression.\n");
+	printf(" The values are loaded from a file.\n");
+	printf(" \n");
+	printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf(" #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n\n");
+	return PROGRAM_SUCCESS;
 }
+int ProgramEndnote() {
 
+	printf("\n\n #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n");
+	printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf(" \n");
+	printf(" End of program.\n");
+	printf(" \n");
+	printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf(" #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n\n");
+	return PROGRAM_SUCCESS;
+}
 int NewElAfter(Position P, float F) {
 
 	Position Q = malloc(sizeof(struct Cvor));
@@ -98,24 +136,25 @@ int PrintList(Position P) {
 	}
 	else {
 		while (P != NULL) {
-
 			PrintEl(P);
+			P = P->Next;
 		}
+
 		printf("\n");
 	}
 	return PROGRAM_SUCCESS;
 }
 
-int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
+int ProcessFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
 {
 	FILE* file = NULL;
-	int  n, r, i;
+	int  n, r, i,x ;
 	file = fopen(nameOfFile, "r");
 	char buffer[MAX_LINE] = { 0 };
 	char* P = buffer;
 	char c = ' ';
-	float F = 0.0;
-	n = 0; r = 0; i = 0;
+	float F = 0.0, f=0;
+	n = 1; r = 1; i = 0;
 
 	if (file == NULL) {
 		printf("\n\nNemoguce otvoriti datoteku.\n\n");
@@ -125,37 +164,36 @@ int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
 		fgets(buffer, MAX_LINE, file);
 		i++;
 	}
+	while (r!=-1) {
 
-	while (strlen(buffer) > 0) {
 
 		r = sscanf(P, " %f %n", &F, &n);
-		if (r != 1) {
-			sscanf(P, " %c %n", &c, &n);
-			switch (c)
-			{
-			case '+': 
-				Add(Poz);
-				break;
-			case '-':
-				Sub(Poz);
-				break;
-			case '*':
-				Mult(Poz);
-				break;
-			case '/':
-				Div(Poz);
-				break;
-			default:
-				break;
-			}
-		
-			break; 
-		}
-		P += n * sizeof(char);
-		NewElAfter(Poz, F);
-	}
 
-	//printf("\n\nKraj liste.\n\n");
+		if (r == 1) {
+			NewElAfter(Poz, F);
+		}
+		else if (r != -1 && sscanf(P, " %c %n", &c, &n) == 1)
+			{
+				switch (c)
+				{
+				case '+':
+					Add(Poz);
+					break;
+				case '-':
+					Sub(Poz);
+					break;
+				case '*':
+					Mult(Poz);
+					break;
+				case '/':
+					Div(Poz);
+					break;
+				default:
+					break;
+				}
+			}
+		P += n * sizeof(char);
+	}
 	fclose(file);
 	return PROGRAM_SUCCESS;
 }
@@ -182,7 +220,7 @@ int Mult(Position P) {
 
 }
 int Div(Position P) {
-
+	
 	if (P->Next->f == 0)
 	{
 		printf("Division by zero is not allowed!!");
@@ -222,6 +260,12 @@ int DelAll(Position P) {
 		DelNextEl(P);
 		i++;
 	}
-	printf("Deleted list! Deleted %i entries.\n", i);
+	if (i = 1) {
+		printf("Deleted list! Deleted %i entry.\n", i);
+	}
+	else {
+		printf("Deleted list! Deleted %i entries.\n", i);
+	}
+	   
 	return PROGRAM_SUCCESS;
 }
