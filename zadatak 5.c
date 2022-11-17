@@ -172,7 +172,7 @@ int ProcessFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
 		if (r == 1) {
 			NewElAfter(Poz, F);
 		}
-		else if (r != -1 && sscanf(P, " %c %n", &c, &n) == 1)
+		else if (sscanf(P, " %c %n", &c, &n) == 1)
 			{
 				switch (c)
 				{
