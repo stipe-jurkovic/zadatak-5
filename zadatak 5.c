@@ -11,8 +11,6 @@
 #define MAX_LINE 100
 #define true 1
 
-
-
 typedef struct Cvor* Position;
 typedef struct Cvor {
 
@@ -21,40 +19,47 @@ typedef struct Cvor {
 
 } Cvor;
 
-
-Position PrevEl(Position P, float F);
 Position EndOfList(Position P);
 
+int NewElBeg(Position P, float f);
 int NewElAfter(Position P, float F);
 int NewElEnd(Position P, float F);
 int PrintEl(Position P);
 int PrintList(Position P);
 
-int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Pozn, int line);
+int ProcessFile(char nameOfFile[MAX_FILE_NAME], Position Pozn, int line);
 
 int Add(Position P);
 int Sub(Position P);
+int Del(Position P);
+int Mult(Position P);
 int DelNextEl(Position P);
 int DelAll(Position P);
 
 int main() {
+	Position head;
+	head = malloc(sizeof(Cvor));
+	head->f = 0.0;
+	head->Next = NULL;
+	ProcessFile("postfix.txt", head, 1);
+	PrintList(head);
 
+	return PROGRAM_SUCCESS;
+}
 
-
-
+int NewElBeg(Position P, float f) {
+	Position Q;
+	Q = malloc(sizeof(Cvor));
+	Q->f = f;
+	Q->Next = P->Next;
+	P->Next = Q;
+	PrintEl(P);
+	return PROGRAM_SUCCESS;
 }
 
 Position EndOfList(Position P) {
 
 	while (P->Next != NULL) {
-		P = P->Next;
-	}
-	return P;
-}
-Position PrevEl(Position P, float F) {
-
-	while (P->Next != NULL && P->Next->f != F)
-	{
 		P = P->Next;
 	}
 	return P;
@@ -106,7 +111,7 @@ int PrintList(Position P) {
 	return PROGRAM_SUCCESS;
 }
 
-int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
+int ProcessFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
 {
 	FILE* file = NULL;
 	int  n, r, i;
@@ -126,14 +131,14 @@ int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
 		i++;
 	}
 
-	while (strlen(buffer) > 0) {
+	while (strlen(buffer)) {
 
 		r = sscanf(P, " %f %n", &F, &n);
 		if (r != 1) {
-			sscanf(P, " %c %n", &c, &n);
+			sscanf(P, "%c %n", &c, &n);
 			switch (c)
 			{
-			case '+': 
+			case '+':
 				Add(Poz);
 				break;
 			case '-':
@@ -147,9 +152,9 @@ int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
 				break;
 			default:
 				break;
+
 			}
-		
-			break; 
+			DelNextEl(Poz);
 		}
 		P += n * sizeof(char);
 		NewElAfter(Poz, F);
@@ -162,35 +167,31 @@ int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
 
 int Add(Position P) {
 
-	P->Next->Next->f += P->Next->f;
-	DelNextEl(P);
+	P->Next->f += P->f;
 	return PROGRAM_SUCCESS;
 
 }
 int Sub(Position P) {
 
-	P->Next->Next->f -= P->Next->f;
-	DelNextEl(P);
+	P->Next->f -= P->f;
 	return PROGRAM_SUCCESS;
 
 }
 int Mult(Position P) {
 
-	P->Next->Next->f *= P->Next->f;
-	DelNextEl(P);
+	P->Next->f *= P->f;
 	return PROGRAM_SUCCESS;
 
 }
 int Div(Position P) {
-
+	/*
 	if (P->Next->f == 0)
 	{
 		printf("Division by zero is not allowed!!");
 		return PROGRAM_FAILED;
-	}
+	}*/
 
-	P->Next->Next->f /= P->Next->f;
-	DelNextEl(P);
+	P->Next->f /= P->f;
 	return PROGRAM_SUCCESS;
 
 }
