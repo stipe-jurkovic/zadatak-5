@@ -11,8 +11,6 @@
 #define MAX_LINE 100
 #define true 1
 
-
-
 typedef struct Cvor* Position;
 typedef struct Cvor {
 
@@ -21,27 +19,44 @@ typedef struct Cvor {
 
 } Cvor;
 
-
-Position PrevEl(Position P, float F);
 Position EndOfList(Position P);
 
+int NewElBeg(Position P, float f);
 int NewElAfter(Position P, float F);
 int NewElEnd(Position P, float F);
 int PrintEl(Position P);
 int PrintList(Position P);
 
-int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Pozn, int line);
+int ProcessFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line);
 
 int Add(Position P);
 int Sub(Position P);
+int Mult(Position P);
+int Div(Position P);
+
+int Del(Position P);
 int DelNextEl(Position P);
 int DelAll(Position P);
 
 int main() {
+	Position head;
+	head = malloc(sizeof(Cvor));
+	head->f = 0.0;
+	head->Next = NULL;
+	ProcessFile("postfix.txt", head, 1);
+	//PrintList(head);
 
+	return PROGRAM_SUCCESS;
+}
 
-
-
+int NewElBeg(Position P, float f) {
+	Position Q;
+	Q = malloc(sizeof(Cvor));
+	Q->f = f;
+	Q->Next = P->Next;
+	P->Next = Q;
+	//PrintEl(P);
+	return PROGRAM_SUCCESS;
 }
 
 Position EndOfList(Position P) {
@@ -51,14 +66,7 @@ Position EndOfList(Position P) {
 	}
 	return P;
 }
-Position PrevEl(Position P, float F) {
 
-	while (P->Next != NULL && P->Next->f != F)
-	{
-		P = P->Next;
-	}
-	return P;
-}
 
 int NewElAfter(Position P, float F) {
 
@@ -83,7 +91,6 @@ int NewElEnd(Position P, float F) {
 	printf("\n\nNew element created!\n\n\n");
 }
 int PrintEl(Position P) {
-	//P = P->Next;
 	printf("%f ", P->f);
 	return PROGRAM_SUCCESS;
 }
@@ -106,7 +113,7 @@ int PrintList(Position P) {
 	return PROGRAM_SUCCESS;
 }
 
-int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
+int ProcessFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
 {
 	FILE* file = NULL;
 	int  n, r, i;
@@ -133,7 +140,7 @@ int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
 			sscanf(P, " %c %n", &c, &n);
 			switch (c)
 			{
-			case '+': 
+			case '+':
 				Add(Poz);
 				break;
 			case '-':
@@ -152,9 +159,10 @@ int ReadFromFile(char nameOfFile[MAX_FILE_NAME], Position Poz, int line)
 			break; 
 		}
 		P += n * sizeof(char);
-		NewElAfter(Poz, F);
+		NewElEnd(Poz, F);
+		
 	}
-
+	PrintList(Poz);
 	//printf("\n\nKraj liste.\n\n");
 	fclose(file);
 	return PROGRAM_SUCCESS;
@@ -182,14 +190,14 @@ int Mult(Position P) {
 
 }
 int Div(Position P) {
-
-	if (P->Next->f == 0)
+	
+	if (P->Next->Next->f == 0)
 	{
 		printf("Division by zero is not allowed!!");
 		return PROGRAM_FAILED;
 	}
-
-	P->Next->Next->f /= P->Next->f;
+	printf("\ndijeljenje\n");
+	P->Next->Next->f /= (float)P->Next->f;
 	DelNextEl(P);
 	return PROGRAM_SUCCESS;
 
@@ -203,8 +211,8 @@ int DelNextEl(Position P) {
 		printf("\nElement was not found!\n");
 		return PROGRAM_FAILED;
 	}
-	temp = P->Next;
-	P->Next = P->Next->Next;
+	temp = P;
+	P = P->Next;
 
 	free(temp);
 	//printf("\nDeleted 1 element!\n");
@@ -215,13 +223,13 @@ int DelAll(Position P) {
 	int i = 0;
 	if (P->Next == NULL)
 	{
-		printf("List is empty!! Success?\n");
+		printf("List is empty! Success.\n");
 		return PROGRAM_SUCCESS;
 	}
 	while (P->Next != NULL) {
 		DelNextEl(P);
 		i++;
 	}
-	printf("Deleted list! Deleted %i entries.\n", i);
+	printf("\nDeleted list! Deleted %i entries.\n", i);
 	return PROGRAM_SUCCESS;
 }
