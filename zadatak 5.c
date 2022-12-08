@@ -41,7 +41,7 @@ int main() {
 	char imeDatoteke[MAX_FILE_NAME];
 	int s;
 	s = 0;
-	memset(imeDatoteke, "0", MAX_FILE_NAME);
+	memset(imeDatoteke, 0, MAX_FILE_NAME);
 
 	ProgramDescription();
 	printf("\n Enter filename (in form example.txt): ");
