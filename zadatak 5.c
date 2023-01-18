@@ -260,7 +260,7 @@ int DelAll(Position P) {
 		DelNextEl(P);
 		i++;
 	}
-	if (i = 1) {
+	if (i == 1) {
 		printf("Deleted list! Deleted %i entry.\n", i);
 	}
 	else {
